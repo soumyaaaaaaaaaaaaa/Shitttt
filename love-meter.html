@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Show me how much</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background: radial-gradient(circle at top, #ffe0f0 0%, #ffeff7 40%, #fbd3e9 100%);
+    }
+
+    .wrapper {
+      width: 90%;
+      max-width: 420px;
+      padding: 16px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 22px 18px 20px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.18);
+      text-align: center;
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+      transform: translateY(25px);
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(25px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .title {
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+      color:#333;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color:#555;
+      margin-bottom: 14px;
+    }
+
+    /* clickable love box */
+    .love-box {
+      margin: 0 auto 14px;
+      width: 100%;
+      max-width: 260px;
+      height: 160px;
+      border-radius: 16px;
+      border: 2px dashed #ff7aa2;
+      background: rgba(255,255,255,0.9);
+      display:flex;
+      flex-direction: column;
+      justify-content:center;
+      align-items:center;
+      padding: 10px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      gap: 10px;
+    }
+
+    .love-hint {
+      font-size: 0.9rem;
+      color:#999;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      order: -1;
+    }
+
+    .heart {
+      font-size: 2rem;
+      transition: transform 0.15s ease-out;
+    }
+
+    /* progress bar (no numbers) */
+    .bar-wrap {
+      width: 100%;
+      max-width: 260px;
+      height: 10px;
+      border-radius: 999px;
+      background: #ffe4f0;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg,#ff7aa2,#ff4f84);
+      border-radius: 999px;
+      transition: width 0.2s ease-out;
+    }
+
+    /* popup */
+    .popup-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      justify-content:center;
+      align-items:center;
+      z-index: 20;
+    }
+    .popup {
+      background:white;
+      border-radius: 18px;
+      padding: 20px 18px;
+      text-align:center;
+      width: 80%;
+      max-width: 320px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      animation: popIn 0.3s ease-out forwards;
+      opacity:0;
+      transform: scale(0.9);
+    }
+    @keyframes popIn {
+      0% { opacity:0; transform: scale(0.9); }
+      100% { opacity:1; transform: scale(1); }
+    }
+    .popup h2 { margin-bottom: 8px; font-size: 1.2rem; }
+    .popup p { margin-bottom: 16px; font-size: 0.95rem; color:#555; }
+
+    .popup-btn {
+      border:none;
+      padding:10px 20px;
+      border-radius:999px;
+      background:#ff7aa2;
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      font-size:0.95rem;
+      box-shadow: 0 6px 16px rgba(255,122,162,0.5);
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 20px 16px 18px; }
+      .title { font-size: 1.15rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div class="card">
+      <div class="title">Showwww me how much u love meeee 😋</div>
+      <div class="subtitle">
+        Tap inside the box and don't stop, fill it with your love.
+      </div>
+
+      <div class="love-box" id="loveBox">
+        <div class="love-hint" id="loveHint">Tap me again & again 👉</div>
+        <div class="heart" id="heart">💗</div>
+      </div>
+
+      <div class="bar-wrap">
+        <div class="bar-fill" id="barFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- popup after enough taps -->
+  <div class="popup-backdrop" id="lovePopup">
+    <div class="popup">
+      <h2>Okieeeokieee babyyy, thats a lot of love 😳</h2>
+      <p>I'm saving all of this in my heart, okie?</p>
+      <button class="popup-btn" onclick="continueNext()">Continue ➜</button>
+    </div>
+  </div>
+
+  <script>
+    const loveBox = document.getElementById('loveBox');
+    const loveHint = document.getElementById('loveHint');
+    const heart = document.getElementById('heart');
+    const barFill = document.getElementById('barFill');
+    const lovePopup = document.getElementById('lovePopup');
+
+    let clickCount = 0;
+    const targetClicks = 25;
+    const maxScale = 3;
+    const baseScale = 1;
+
+    loveBox.addEventListener('click', () => {
+      if (clickCount === 0) {
+        loveHint.style.opacity = '0';
+        loveHint.style.pointerEvents = 'none';
+      }
+
+      if (clickCount >= targetClicks) return;
+
+      clickCount++;
+
+      const progress = clickCount / targetClicks;
+      const scale = baseScale + (maxScale - baseScale) * progress;
+      heart.style.transform = `scale(${scale})`;
+
+      barFill.style.width = (progress * 100) + '%';
+
+      if (clickCount >= targetClicks) {
+        setTimeout(() => {
+          lovePopup.style.display = 'flex';
+        }, 200);
+      }
+    });
+
+    function continueNext() {
+      window.location.href = 'love-declaration.html';
+    
+    }
+  </script>
+
+</body>
+</html>

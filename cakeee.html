@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Growing Strawberry Cake Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #ffe5f3, #ffcde0, #f7b5ff);
+      padding: 16px;
+    }
+
+    .page {
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 18px 14px 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+
+    .title {
+      text-align: center;
+    }
+
+    .title h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #4b2742;
+      margin-bottom: 6px;
+    }
+
+    .title p {
+      font-size: 0.8rem;
+      color: #7a526e;
+    }
+
+    .divider {
+      width: 60%;
+      height: 2px;
+      margin: 4px auto 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ff98c6, #ffb86c, #a76dff);
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #6b365a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-title span {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255, 152, 198, 0.15);
+      border: 1px solid rgba(255, 152, 198, 0.6);
+      color: #b23b6b;
+    }
+
+    .pool-area {
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 18px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .small-pool {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .small-item {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+      cursor: grab;
+      position: relative;
+    }
+
+    .small-item img {
+      width: 78%;
+      height: 78%;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .small-item.dragging {
+      opacity: 0.8;
+      transform: scale(1.06);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+      cursor: grabbing;
+      z-index: 50;
+    }
+
+    .lanes-area {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 18px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lane {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,228,247,0.95));
+      position: relative;
+    }
+
+    .lane-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.75rem;
+      color: #7a526e;
+    }
+
+    .lane-name {
+      font-weight: 600;
+      color: #543052;
+      font-size: 0.8rem;
+    }
+
+    .lane-progress {
+      font-size: 0.7rem;
+    }
+
+    .big-drop-area {
+      width: 80px;
+      height: 80px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: visible;
+    }
+
+    .big-sweet {
+      width: 70%;
+      height: 70%;
+      object-fit: contain;
+      transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+      pointer-events: none;
+    }
+
+    .big-drop-area.highlight {
+      box-shadow: 0 0 10px rgba(255, 137, 186, 0.8);
+      transform: scale(1.03);
+    }
+
+    .big-drop-area.completed {
+      background: rgba(255, 247, 252, 1);
+    }
+
+    .cake-img {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+      display: none;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .cake-img.dragging {
+      opacity: 0.85;
+      transform: scale(1.06);
+      cursor: grabbing;
+      z-index: 60;
+    }
+
+    .cake-place-section {
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 18px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slots-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+      margin-bottom: 4px;
+    }
+
+    .slot {
+      width: 110px;
+      height: 80px;
+      border-radius: 18px;
+      border: 2px dashed rgba(255, 143, 191, 0.9);
+      background: radial-gradient(circle at center,
+        #fff7fd 0%,
+        #ffe3f4 55%,
+        #ffd2ec 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9;
+      transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+
+    .slot.highlight {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 137, 186, 0.8);
+      border-color: #ff79b4;
+      opacity: 1;
+    }
+
+    .slot.filled {
+      opacity: 1;
+    }
+
+    .bottom-row {
+      margin-top: 4px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .continue-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 26px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+      background: linear-gradient(135deg, #ff8fbf, #ff7a9c, #ffb86c);
+      box-shadow: 0 10px 22px rgba(255, 120, 180, 0.45);
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+    }
+
+    .continue-btn.disabled {
+      opacity: 0.45;
+      filter: grayscale(0.4);
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .continue-btn:not(.disabled):active {
+      transform: translateY(2px);
+      box-shadow: 0 5px 12px rgba(255, 120, 180, 0.4);
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 0.7rem;
+      color: #9a6f8a;
+      margin-top: 4px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: rgba(32, 0, 27, 0.95);
+      color: #ffe5f6;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+      transition: transform 0.2s ease-out;
+      z-index: 200;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0%);
+    }
+
+    .toast-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff89ba;
+    }
+
+    @media (max-width: 360px) {
+      .lane {
+        flex-direction: row;
+        align-items: center;
+      }
+      .big-drop-area {
+        width: 72px;
+        height: 72px;
+      }
+      .slot {
+        width: 96px;
+        height: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <div class="title">
+        <h1>Make one big strawberry cake ✨</h1>
+        <p>Drag the tiny strawberries to the big Big one…</p>
+        <div class="divider"></div>
+      </div>
+
+      <div class="pool-area">
+        <div class="section-title">
+          <span>Step 1</span> Drag each strawberryyyyy to the big oneeee
+        </div>
+        <div class="small-pool" id="smallPool">
+          <!-- JS creates 7 items -->
+        </div>
+      </div>
+
+      <div class="lanes-area">
+        <div class="section-title">
+          <span>Step 2</span> Fill it up to turn into cake
+        </div>
+
+        <div class="lane" data-type="strawberry">
+          <div class="lane-info">
+            <div class="lane-name">Strawberry lane</div>
+            <div class="lane-progress" data-progress="strawberry">0 / 7 pieces</div>
+          </div>
+          <div class="big-drop-area" data-type="strawberry">
+            <img src="strawberry.png" alt="Strawberry sweet" class="big-sweet" data-big="strawberry">
+            <img src="cake_strawberry.png" alt="Strawberry cake" class="cake-img" data-cake="strawberry">
+          </div>
+        </div>
+      </div>
+
+      <div class="cake-place-section">
+        <div class="section-title">
+          <span>Step 3</span> Drag the cake into its dotted place
+        </div>
+        <div class="slots-row">
+          <div class="slot" data-type="strawberry">
+            <!-- cake will be dropped here -->
+          </div>
+        </div>
+
+        <div class="bottom-row">
+          <button class="continue-btn disabled" id="continueBtn">Continue</button>
+        </div>
+        <p class="hint">💗</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <div class="toast-dot"></div>
+    <span id="toastText"></span>
+  </div>
+
+  <audio id="bgMusic" src="cake_music.mp3" loop></audio>
+
+  <script>
+    const smallPool = document.getElementById("smallPool");
+    const continueBtn = document.getElementById("continueBtn");
+    const toast = document.getElementById("toast");
+    const toastText = document.getElementById("toastText");
+    const bgMusic = document.getElementById("bgMusic");
+
+    const TOTAL_STRAWBERRIES = 7;
+
+    const imageForType = {
+      strawberry: "strawberry.png"
+    };
+
+    const bigScale = {
+      strawberry: 1
+    };
+
+    const countPerType = {
+      strawberry: 0
+    };
+
+    let dragging = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    let originalParent = null;
+    let originalRect = null;
+
+    function showToast(msg, ms = 1300) {
+      toastText.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, ms);
+    }
+
+    function initSmallItems() {
+      for (let i = 0; i < TOTAL_STRAWBERRIES; i++) {
+        const div = document.createElement("div");
+        div.className = "small-item";
+        div.dataset.type = "strawberry";
+        div.dataset.id = "strawberry_" + i;
+
+        const img = document.createElement("img");
+        img.src = imageForType["strawberry"];
+        img.alt = "strawberry";
+        div.appendChild(img);
+
+        addDragBehaviour(div);
+        smallPool.appendChild(div);
+      }
+    }
+
+    function addDragBehaviour(el) {
+      el.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        dragging = el;
+        dragging.classList.add("dragging");
+        originalParent = dragging.parentElement;
+        originalRect = dragging.getBoundingClientRect();
+
+        // exact offset inside the element where finger touched
+        dragOffsetX = e.clientX - originalRect.left;
+        dragOffsetY = e.clientY - originalRect.top;
+
+        dragging.style.position = "fixed";
+        dragging.style.left = (e.clientX - dragOffsetX) + "px";
+        dragging.style.top  = (e.clientY - dragOffsetY) + "px";
+        dragging.style.pointerEvents = "none";
+
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", onPointerUp);
+      });
+    }
+
+    function onPointerMove(e) {
+      if (!dragging) return;
+      dragging.style.left = (e.clientX - dragOffsetX) + "px";
+      dragging.style.top  = (e.clientY - dragOffsetY) + "px";
+
+      document.querySelectorAll(".big-drop-area").forEach(area => {
+        const rect = area.getBoundingClientRect();
+        const inside =
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom;
+
+        if (inside && dragging.classList.contains("small-item") && area.dataset.type === dragging.dataset.type) {
+          area.classList.add("highlight");
+        } else {
+          area.classList.remove("highlight");
+        }
+      });
+
+      document.querySelectorAll(".slot").forEach(slot => {
+        const rect = slot.getBoundingClientRect();
+        const inside =
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom;
+        if (
+          inside &&
+          dragging.classList.contains("cake-img") &&
+          slot.dataset.type === dragging.dataset.cakeType &&
+          !slot.dataset.filled
+        ) {
+          slot.classList.add("highlight");
+        } else {
+          slot.classList.remove("highlight");
+        }
+      });
+    }
+
+    function onPointerUp(e) {
+      if (!dragging) return;
+
+      if (dragging.classList.contains("small-item")) {
+        handleSmallDrop(e);
+      } else if (dragging.classList.contains("cake-img")) {
+        handleCakeDrop(e);
+      }
+
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    }
+
+    function handleSmallDrop(e) {
+      const type = dragging.dataset.type;
+      let droppedOnCorrectLane = false;
+
+      document.querySelectorAll(".big-drop-area").forEach(area => {
+        const rect = area.getBoundingClientRect();
+        const inside =
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom;
+
+        if (inside && area.dataset.type === type && !area.classList.contains("completed") && !droppedOnCorrectLane) {
+          droppedOnCorrectLane = true;
+          area.classList.remove("highlight");
+
+          dragging.remove();
+          growBigSweet(type);
+          checkIfAllSmallUsed();
+        } else {
+          area.classList.remove("highlight");
+        }
+      });
+
+      if (!droppedOnCorrectLane) {
+        dragging.style.position = "static";
+        dragging.style.left = "";
+        dragging.style.top = "";
+        dragging.style.pointerEvents = "";
+        dragging.classList.remove("dragging");
+        if (originalParent) originalParent.appendChild(dragging);
+      }
+
+      dragging = null;
+      originalParent = null;
+    }
+
+    function growBigSweet(type) {
+      countPerType[type] += 1;
+      const progressEl = document.querySelector('.lane-progress[data-progress="' + type + '"]');
+      if (progressEl) {
+        progressEl.textContent = countPerType[type] + " / " + TOTAL_STRAWBERRIES + " pieces";
+      }
+
+      const bigImg = document.querySelector('.big-sweet[data-big="' + type + '"]');
+      const area = document.querySelector('.big-drop-area[data-type="' + type + '"]');
+      const cakeImg = document.querySelector('.cake-img[data-cake="' + type + '"]');
+
+      if (!bigImg || !area || !cakeImg) return;
+
+      const stepScale = 0.08;
+      bigScale[type] += stepScale;
+      bigImg.style.transform = "scale(" + bigScale[type].toFixed(2) + ")";
+
+      if (countPerType[type] >= TOTAL_STRAWBERRIES) {
+        bigImg.style.opacity = "0";
+        area.classList.add("completed");
+        setTimeout(() => {
+          bigImg.style.display = "none";
+          cakeImg.style.display = "block";
+          cakeImg.dataset.cakeType = type;
+          enableCakeDrag(cakeImg);
+          showToast("Strawberry turned into cake 🎂");
+        }, 220);
+      }
+    }
+
+    function checkIfAllSmallUsed() {
+      const remaining = document.querySelectorAll(".small-item").length;
+      if (remaining === 0) {
+        showToast("All strawberries used… now finish the cake 💗", 1500);
+      }
+    }
+
+    function enableCakeDrag(img) {
+      img.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        dragging = img;
+        dragging.classList.add("dragging");
+        dragging.style.touchAction = "none";
+
+        originalParent = dragging.parentElement;
+        originalRect = dragging.getBoundingClientRect();
+
+        dragOffsetX = e.clientX - originalRect.left;
+        dragOffsetY = e.clientY - originalRect.top;
+
+        dragging.style.position = "fixed";
+        dragging.style.left = (e.clientX - dragOffsetX) + "px";
+        dragging.style.top  = (e.clientY - dragOffsetY) + "px";
+        dragging.style.pointerEvents = "none";
+
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", onPointerUp);
+      });
+    }
+
+    function handleCakeDrop(e) {
+      const cakeType = dragging.dataset.cakeType;
+      let placed = false;
+
+      document.querySelectorAll(".slot").forEach(slot => {
+        const rect = slot.getBoundingClientRect();
+        const inside =
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom;
+
+        if (inside && slot.dataset.type === cakeType && !slot.dataset.filled && !placed) {
+          placed = true;
+          slot.classList.add("filled");
+          slot.classList.remove("highlight");
+          slot.dataset.filled = "true";
+
+          dragging.style.position = "static";
+          dragging.style.left = "";
+          dragging.style.top = "";
+          dragging.style.pointerEvents = "";
+          dragging.classList.remove("dragging");
+
+          slot.appendChild(dragging);
+
+          try {
+            bgMusic.currentTime = 0;
+            bgMusic.play();
+          } catch (err) {
+            console.log("Music play blocked:", err);
+          }
+
+          showToast("Perfect place for this cake 🍰");
+          checkAllCakesPlaced();
+        } else {
+          slot.classList.remove("highlight");
+        }
+      });
+
+      if (!placed) {
+        dragging.style.position = "static";
+        dragging.style.left = "";
+        dragging.style.top = "";
+        dragging.style.pointerEvents = "";
+        dragging.classList.remove("dragging");
+        if (originalParent) originalParent.appendChild(dragging);
+      }
+
+      dragging = null;
+      originalParent = null;
+    }
+
+    function checkAllCakesPlaced() {
+      const allFilled = Array.from(document.querySelectorAll(".slot"))
+        .every(slot => slot.dataset.filled === "true");
+      if (allFilled) {
+        continueBtn.classList.remove("disabled");
+        showToast("Cake ready… tap Continue 💗", 1600);
+      }
+    }
+
+    continueBtn.addEventListener("click", () => {
+      if (continueBtn.classList.contains("disabled")) {
+        showToast("Finish placing the cake first 🥺");
+        return;
+      }
+
+      try {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+      } catch (err) {
+        console.log("Music pause error:", err);
+      }
+
+      window.location.href = "next.html";
+    });
+
+    initSmallItems();
+  </script>
+</body>
+</html>

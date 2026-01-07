@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Strawberry Catch Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background: radial-gradient(circle at top, #ffe0f0 0%, #ffeff7 40%, #fbd3e9 100%);
+    }
+
+    .outer-wrap {
+      width: 100%;
+      display:flex;
+      justify-content:center;
+      padding: 16px;
+    }
+
+    .game-card {
+      background: rgba(255,255,255,0.96);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.18);
+      padding: 14px 10px 16px;
+      max-width: 380px;
+      width: 100%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      opacity: 0;
+      transform: translateY(40px) scale(0.97);
+      animation: cardEnter 0.6s ease-out forwards;
+    }
+
+    @keyframes cardEnter {
+      0% { opacity: 0; transform: translateY(40px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .container { width: 94%; margin: 4px auto; }
+
+    .box {
+      background: rgba(255,255,255,0.9);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .top-text {
+      font-size: 1rem;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:6px;
+    }
+
+    .bottom-text { font-size: 0.9rem; color:#555; }
+
+    .canvas-box {
+      padding: 8px;
+      position: relative;
+    }
+
+    canvas {
+      display:block;
+      width:100%;
+      border-radius: 14px;
+      background: linear-gradient(160deg, #ffe9f5 0%, #fbe7ff 40%, #f6f3ff 100%);
+    }
+
+    .hint-text { font-size: 0.85rem; color:#666; }
+
+    .start-label {
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      background: rgba(255,255,255,0.95);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      color:#ff4f84;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      pointer-events: none;
+    }
+
+    .goodgirl {
+      position: absolute;
+      left: 50%;
+      bottom: 84px;
+      transform: translateX(-50%);
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.95);
+      color: #ff256b;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.16);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .goodgirl.show { animation: popUp 0.7s ease-out forwards; }
+
+    @keyframes popUp {
+      0%   { transform: translate(-50%, 6px); opacity: 0; }
+      30%  { transform: translate(-50%, -4px); opacity: 1; }
+      100% { transform: translate(-50%, -16px); opacity: 0; }
+    }
+
+    .popup-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.45);
+      z-index: 20;
+    }
+
+    .popup {
+      background:white;
+      border-radius: 18px;
+      padding: 20px 18px;
+      text-align:center;
+      width: 80%;
+      max-width: 320px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+
+    .btn-row {
+      display:flex;
+      gap:8px;
+      justify-content:center;
+      margin-top: 8px;
+    }
+
+    .btn {
+      border:none;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#ff7aa2;
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      font-size:0.9rem;
+      box-shadow: 0 6px 16px rgba(255,122,162,0.5);
+      transition: transform 0.15s, box-shadow 0.15s;
+      flex:1;
+      white-space: nowrap;
+    }
+
+    .btn.secondary {
+      background:#ececec;
+      color:#444;
+      box-shadow:none;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(255,122,162,0.6);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(255,122,162,0.4);
+    }
+
+    /* progress bar */
+    .progress-wrap {
+      margin-top: 6px;
+      width: 100%;
+      max-width: 260px;
+      margin-inline: auto;
+    }
+    .progress-label {
+      font-size: 0.8rem;
+      color:#666;
+      margin-bottom: 3px;
+    }
+    .progress-bar {
+      width: 100%;
+      background: #f3d7e8;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff7aa2, #ff4f84);
+      border-radius: 999px;
+      transition: width 0.15s ease-out;
+    }
+
+    .perfect-img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 480px) {
+      .game-card { max-width: 360px; }
+      .container { max-width: 340px; }
+      .top-text { font-size: 0.95rem; }
+      .bottom-text { font-size: 0.85rem; }
+      .hint-text { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="outer-wrap">
+  <div class="game-card">
+    <div class="container">
+      <div class="box top-text">
+        <span>Sooo Coraaa said u like strawberries 🍓</span>
+      </div>
+
+      <div class="box canvas-box">
+        <canvas id="gameCanvas" width="360" height="420"></canvas>
+        <div class="start-label" id="startLabel">Move the basket to start honeyyy ✨</div>
+        <div class="goodgirl" id="goodgirl">gooooodgirlllll 💋</div>
+      </div>
+
+      <div class="box bottom-text">
+        Rule: strawberryyyys will keep falling from the top.  
+        You have to catch every single one in the basket without missing any.
+      </div>
+
+      <div class="box hint-text">
+        STRAWBERRIESSSSSS.
+      </div>
+
+      <!-- progress bar box -->
+      <div class="box">
+        <div class="progress-wrap">
+          <div class="progress-label">Progress</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Miss popup -->
+<div class="popup-backdrop" id="missPopup">
+  <div class="popup">
+    <h2>Ahhh you missed one 🙈</h2>
+    <p>You have to try again… unless you wanna give upppp.</p>
+    <div class="btn-row">
+      <button class="btn secondary" onclick="retryGame()">Try again bbg</button>
+      <button class="btn" onclick="giveUpGame()">Give up ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- Perfect popup with PNG -->
+<div class="popup-backdrop" id="perfectPopup">
+  <div class="popup">
+    <img src="perfect.png" alt="Perfect" class="perfect-img">
+    <h2></h2>
+    <p>Takeeee themm alll even take me toooo u can eat them 😋 .</p>
+
+    <!-- extra space before button -->
+    <div style="margin-top: 16px;"></div>
+
+    <button class="btn" onclick="goToNextPerfectPage()">Continue ➜</button>
+  </div>
+</div>
+
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const goodgirlEl = document.getElementById('goodgirl');
+  const missPopup = document.getElementById('missPopup');
+  const perfectPopup = document.getElementById('perfectPopup');
+  const startLabel = document.getElementById('startLabel');
+  const progressFill = document.getElementById('progressFill');
+
+  const basketImg = new Image();
+  basketImg.src = 'basket.png';
+
+  const strawberryImg = new Image();
+  strawberryImg.src = 'strawberry.png';
+
+  let basket = {
+    x: canvas.width / 2,
+    y: canvas.height - 70,
+    width: 110,
+    height: 80
+  };
+
+  let strawberries = [];
+  const totalStrawberries = 40;  // internal only, not displayed
+  let baseFallSpeed = 1.6;
+  let spawnInterval = 800;
+  let lastSpawn = 0;
+  let caughtCount = 0;
+  let missed = false;
+  let gameOver = false;
+  let lastTime = 0;
+  let started = false;
+
+  function updateProgress() {
+    const percent = Math.min(100, (caughtCount / totalStrawberries) * 100);
+    progressFill.style.width = percent + '%';
+  }
+
+  function resetGame() {
+    strawberries = [];
+    baseFallSpeed = 1.6;
+    spawnInterval = 800;
+    lastSpawn = 0;
+    caughtCount = 0;
+    missed = false;
+    gameOver = false;
+    lastTime = 0;
+    started = false;
+    missPopup.style.display = 'none';
+    perfectPopup.style.display = 'none';
+    startLabel.style.display = 'block';
+    updateProgress();
+    requestAnimationFrame(loop);
+  }
+
+  function spawnStrawberry() {
+    if (strawberries.length >= totalStrawberries) return;
+    const size = 75;
+    const padding = 10;
+    const x = padding + Math.random() * (canvas.width - padding*2 - size);
+    strawberries.push({
+      x,
+      y: -size,
+      size,
+      speed: baseFallSpeed + Math.random() * 0.8,
+      active: true
+    });
+
+    baseFallSpeed += 0.035;
+    if (spawnInterval > 520) {
+      spawnInterval -= 10;
+    }
+  }
+
+  function drawBasket() {
+    if (basketImg.complete && basketImg.naturalWidth !== 0) {
+      ctx.drawImage(
+        basketImg,
+        basket.x - basket.width / 2,
+        basket.y,
+        basket.width,
+        basket.height
+      );
+    } else {
+      ctx.fillStyle = '#ffdf85';
+      ctx.fillRect(basket.x - basket.width/2, basket.y + 10, basket.width, 20);
+    }
+  }
+
+  function drawStrawberry(s) {
+    if (strawberryImg.complete && strawberryImg.naturalWidth !== 0) {
+      ctx.drawImage(strawberryImg, s.x, s.y, s.size, s.size);
+    } else {
+      ctx.fillStyle = '#ff2e70';
+      ctx.beginPath();
+      ctx.arc(s.x + s.size/2, s.y + s.size/2, s.size/2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function showGoodGirl() {
+    goodgirlEl.classList.remove('show');
+    void goodgirlEl.offsetWidth;
+    goodgirlEl.classList.add('show');
+  }
+
+  function update(delta) {
+    if (!started || gameOver) return;
+
+    lastSpawn += delta;
+    if (lastSpawn > spawnInterval && strawberries.length < totalStrawberries) {
+      spawnStrawberry();
+      lastSpawn = 0;
+    }
+
+    strawberries.forEach(s => {
+      if (!s.active) return;
+      s.y += s.speed;
+
+      const centerX = s.x + s.size / 2;
+      const centerY = s.y + s.size / 2;
+
+      const withinX =
+        centerX > basket.x - basket.width / 2 &&
+        centerX < basket.x + basket.width / 2;
+      const withinY =
+        centerY > basket.y &&
+        centerY < basket.y + basket.height;
+
+      if (withinX && withinY) {
+        s.active = false;
+        caughtCount++;
+        updateProgress();
+        showGoodGirl();
+      }
+
+      if (s.y > canvas.height && s.active) {
+        missed = true;
+        s.active = false;
+      }
+    });
+
+    const activeLeft = strawberries.some(s => s.active);
+    const allSpawned = strawberries.length === totalStrawberries;
+
+    if ((allSpawned && !activeLeft) || missed) {
+      gameOver = true;
+      if (missed) {
+        missPopup.style.display = 'flex';
+      } else {
+        perfectPopup.style.display = 'flex';
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grd.addColorStop(0, 'rgba(255,255,255,0.25)');
+    grd.addColorStop(1, 'rgba(230,210,255,0.25)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawBasket();
+    strawberries.forEach(s => {
+      if (!s.active) return;
+      drawStrawberry(s);
+    });
+  }
+
+  function loop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    const delta = timestamp - lastTime;
+    lastTime = timestamp;
+
+    update(delta);
+    draw();
+
+    if (!gameOver) {
+      requestAnimationFrame(loop);
+    }
+  }
+
+  function setBasketX(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    let x = clientX - rect.left;
+    if (x < basket.width/2) x = basket.width/2;
+    if (x > canvas.width - basket.width/2) x = canvas.width - basket.width/2;
+    basket.x = x;
+
+    if (!started) {
+      started = true;
+      startLabel.style.display = 'none';
+      setTimeout(() => spawnStrawberry(), 400);
+    }
+  }
+
+  canvas.addEventListener('mousemove', e => {
+    setBasketX(e.clientX);
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    const touch = e.touches[0];
+    setBasketX(touch.clientX);
+    e.preventDefault();
+  }, { passive: false });
+
+  function retryGame() {
+    resetGame();
+  }
+
+  function giveUpGame() {
+    window.location.href = 'cakeee.html';
+   
+  }
+
+  function goToNextPerfectPage() {
+    window.location.href = 'cakeee.html';
+   
+  }
+
+  resetGame();
+</script>
+
+</body>
+</html>

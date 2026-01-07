@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poison Candy Game</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background: radial-gradient(circle at top, #ffe0f0 0%, #ffeff7 40%, #fbd3e9 100%);
+    }
+
+    .outer-wrap {
+      width: 100%;
+      display:flex;
+      justify-content:center;
+      padding: 16px;
+    }
+
+    .game-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.18);
+      padding: 14px 10px 16px;
+      max-width: 380px;
+      width: 100%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      opacity: 0;
+      transform: translateY(40px) scale(0.97);
+      animation: cardEnter 0.6s ease-out forwards;
+    }
+
+    @keyframes cardEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .game-card:hover {
+      transform: perspective(900px) rotateX(4deg) rotateY(-4deg) scale(1.01);
+      box-shadow: 0 22px 50px rgba(0,0,0,0.25);
+    }
+
+    .container {
+      width: 94%;
+      margin: 4px auto;
+    }
+    .box {
+      background: rgba(255,255,255,0.9);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .top-text {
+      font-size: 1rem;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:6px;
+    }
+
+    .top-cat {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-left: 4px;
+      animation: topCatFloat 1.5s ease-in-out infinite;
+    }
+    @keyframes topCatFloat {
+      0%,100% { transform: translateY(0); }
+      50%     { transform: translateY(-3px); }
+    }
+
+    .bottom-text { font-size: 0.9rem; color:#555; }
+
+    .grid-box { padding: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .candy {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      background: #ff7aa2;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+      transition: transform 0.18s, opacity 0.18s, box-shadow 0.18s;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .candy:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+    }
+    .candy.hidden { opacity:0; pointer-events:none; }
+
+    .color1 { background:#ff7aa2; }
+    .color2 { background:#ffb347; }
+    .color3 { background:#8ec5fc; }
+    .color4 { background:#b19cd9; }
+    .color5 { background:#9ae6b4; }
+
+    .overlay,
+    .popup-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+    }
+    .overlay {
+      background: rgba(0,0,0,0.4);
+      color:white;
+      flex-direction: column;
+      text-align:center;
+    }
+    .overlay-content {
+      font-size: 2.7rem;
+      margin-bottom: 6px;
+    }
+    .overlay-text {
+      font-size: 1.2rem;
+    }
+
+    .popup-backdrop {
+      background: rgba(0,0,0,0.45);
+    }
+    .popup {
+      background:white;
+      border-radius: 18px;
+      padding: 20px 18px;
+      text-align:center;
+      width: 80%;
+      max-width: 320px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .popup h2 { margin-bottom: 8px; }
+    .popup p { margin-bottom: 16px; font-size: 0.95rem; }
+
+    .btn {
+      border:none;
+      padding:10px 20px;
+      border-radius:999px;
+      background:#ff7aa2;
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      font-size:0.95rem;
+      box-shadow: 0 6px 16px rgba(255,122,162,0.5);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(255,122,162,0.6);
+    }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(255,122,162,0.4);
+    }
+
+    .skull {
+      font-size: 3rem;
+      animation: shake 0.7s ease-in-out 1;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    /* persistent kiss counter box */
+    .kiss-counter-box {
+      margin-top: 4px;
+      font-size: 0.9rem;
+      color:#444;
+    }
+    .kiss-counter-box span {
+      font-weight: 700;
+      color:#ff4f84;
+    }
+
+    @media (max-width: 480px) {
+      .game-card {
+        max-width: 360px;
+      }
+      .container {
+        max-width: 340px;
+      }
+      .candy {
+        width: 52px;
+        height: 52px;
+        font-size: 0.85rem;
+      }
+      .top-text { font-size: 0.95rem; }
+      .bottom-text { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="outer-wrap">
+  <div class="game-card">
+    <div class="container">
+      <div class="box top-text">
+        <span>I made the First Game tht we played together 😋</span>
+        <img src="cat.gif" alt="cat" class="top-cat">
+      </div>
+
+      <div class="box grid-box">
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <div class="box bottom-text"> Rule:
+        Soooo there is 1 evil poison candy and I added 5 kiss candies u have to choose all kiss candies to win
+        so after whatever is this i need thoseee kisses 😋
+      </div>
+
+      <!-- kiss counter inside box -->
+      <div class="box kiss-counter-box">
+        Kiss counter: <span id="kissTotal">0</span> 💋
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Kiss overlay -->
+<div class="overlay" id="kissOverlay">
+  <div class="overlay-content">💋</div>
+  <div class="overlay-text">Kiss candyyy</div>
+</div>
+
+<!-- Win popup -->
+<div class="popup-backdrop" id="winPopup">
+  <div class="popup">
+    <div class="skull">🎉</div>
+    <h2>yippee Poison avoided!</h2>
+    <p>Babyyy U ate all the sweet candies without touching the poison </p>
+    <button class="btn" onclick="goNext()">Continue ➜</button>
+  </div>
+</div>
+
+<!-- Death popup -->
+<div class="popup-backdrop" id="deathPopup">
+  <div class="popup">
+    <div class="skull">💀</div>
+    <h2>Babyyy U picked the poison!</h2>
+    <p>Death hahaha. Restart or give up and go ahead?</p>
+    <button class="btn" onclick="restartGame()">Restart 🔁</button>
+    <br><br>
+    <button class="btn" style="background:#555;" onclick="giveUp()">Give up ➜</button>
+  </div>
+</div>
+
+<script>
+  const gridEl = document.getElementById('grid');
+  const kissOverlay = document.getElementById('kissOverlay');
+  const winPopup = document.getElementById('winPopup');
+  const deathPopup = document.getElementById('deathPopup');
+  const kissTotalEl = document.getElementById('kissTotal');
+
+  let poisonIndex;
+  let kissIndexes = [];
+  let kissFound = 0;
+  let gameOver = false;
+
+  // persistent kiss total (does NOT reset on restart)
+  let kissTotal = 0;
+
+  function setupGame() {
+    gridEl.innerHTML = '';
+    gameOver = false;
+    kissFound = 0;
+    kissIndexes = [];
+
+    const indices = Array.from({length: 16}, (_, i) => i);
+    indices.sort(() => Math.random() - 0.5);
+
+    poisonIndex = indices[0];          // 1 poison
+    kissIndexes = indices.slice(1, 6); // 5 kiss candies
+
+    for (let i = 0; i < 16; i++) {
+      const div = document.createElement('div');
+      div.classList.add('candy');
+      const colorClass = 'color' + ((i % 5) + 1);
+      div.classList.add(colorClass);
+      div.dataset.index = i;
+      div.textContent = "🍬";
+      div.addEventListener('click', onCandyClick);
+      gridEl.appendChild(div);
+    }
+  }
+
+  function onCandyClick(e) {
+    if (gameOver) return;
+    const candy = e.currentTarget;
+    const index = parseInt(candy.dataset.index, 10);
+    if (candy.classList.contains('hidden')) return;
+
+    if (index === poisonIndex) {
+      gameOver = true;
+      showDeath();
+    } else if (kissIndexes.includes(index)) {
+      candy.classList.add('hidden');
+      kissFound++;
+      // increase persistent kiss total
+      kissTotal++;
+      kissTotalEl.textContent = kissTotal;
+      showKissOverlay();
+      checkWin();
+    } else {
+      candy.classList.add('hidden');
+      checkWin();
+    }
+  }
+
+  function showKissOverlay() {
+    kissOverlay.style.display = 'flex';
+    setTimeout(() => {
+      kissOverlay.style.display = 'none';
+    }, 1000);
+  }
+
+  function showDeath() {
+    deathPopup.style.display = 'flex';
+  }
+
+  function checkWin() {
+    if (kissFound >= 5 && !gameOver) {
+      gameOver = true;
+      winPopup.style.display = 'flex';
+    }
+  }
+
+  function restartGame() {
+    deathPopup.style.display = 'none';
+    winPopup.style.display = 'none';
+    // kissTotal stays the same here (does NOT reset)
+    setupGame();
+  }
+
+  function giveUp() {
+  // go ahead even after poison
+  window.location.href = 'message-page.html';
+}
+
+function goNext() {
+  // from win popup
+  window.location.href = 'message-page.html';
+}
+
+
+  setupGame();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Something More For You</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #ffe0f0 0%, #ffeff7 40%, #fbd3e9 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* background floating hearts (calm) */
+    .heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff7aa2;
+      transform: rotate(45deg);
+      opacity: 0.6;
+      animation: floatUp linear infinite;
+      z-index: 0;
+    }
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff7aa2;
+      border-radius: 50%;
+    }
+    .heart::before { top: -10px; left: 0; }
+    .heart::after  { left: -10px; top: 0; }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(110vh) rotate(45deg); opacity: 0; }
+      20%  { opacity: 0.7; }
+      100% { transform: translateY(-120vh) rotate(45deg); opacity: 0; }
+    }
+
+    /* center box + button */
+    .wrapper {
+      position: relative;
+      z-index: 2;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 24px 20px 60px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      animation: floatCard 4s ease-in-out infinite;
+    }
+
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    .title {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    .subtitle {
+      font-size: 1rem;
+      color: #666;
+    }
+
+    .cat {
+      position: absolute;
+      width: 90px;
+      bottom: 14px;
+      right: 10px;
+    }
+
+    .continue-btn {
+      margin-top: 18px;
+      width: 100%;
+      padding: 12px 0;
+      border: none;
+      border-radius: 999px;
+      background: #ff7aa2;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(255, 122, 162, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .continue-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(255, 122, 162, 0.5);
+    }
+    .continue-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(255, 122, 162, 0.3);
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 20px 16px 56px; }
+      .cat  { width: 55px; }
+      .title { font-size: 1.2rem; }
+    }
+
+    /* FULLSCREEN HEART BLAST */
+    #heartBlast {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      overflow: hidden;
+      display: none;
+      z-index: 50;
+      opacity: 0;
+    }
+
+    .blast-heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff7aa2;
+      transform: rotate(45deg);
+      opacity: 0;
+      animation: blastUp 2.2s linear forwards;
+      filter: drop-shadow(0 0 4px rgba(255,122,162,0.6));
+    }
+    .blast-heart::before,
+    .blast-heart::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff7aa2;
+      border-radius: 50%;
+    }
+    .blast-heart::before { top: -10px; left: 0; }
+    .blast-heart::after  { left: -10px; top: 0; }
+
+    @keyframes blastUp {
+      0%   { transform: translateY(110vh) rotate(45deg); opacity: 0; }
+      15%  { opacity: 0.9; }
+      100% { transform: translateY(-130vh) rotate(45deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- calm floating hearts in background -->
+  <script>
+    for (let i = 0; i < 25; i++) {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = (4 + Math.random() * 4) + 's';
+      heart.style.animationDelay = (Math.random() * 4) + 's';
+      document.body.appendChild(heart);
+    }
+  </script>    
+
+  <!-- fullscreen heart blast overlay -->
+  <div id="heartBlast"></div>
+
+  <div class="wrapper">
+    <div class="card">
+      <div class="title">There’s something more I made for you 💌</div>
+      <div class="subtitle">
+        Not just a wish… a lil smth I built only for you.
+      </div>
+
+      <!-- cat gif bottom-right inside box -->
+      <img src="cat.png" alt="Cute cat" class="cat">
+    </div>
+
+    <button class="continue-btn" onclick="goNext()">
+      Continue ✨
+    </button>
+  </div>
+
+  <script>
+    function goNext() {
+      const blast = document.getElementById('heartBlast');
+      blast.style.display = 'block';
+
+      // create many hearts for the blast
+      for (let i = 0; i < 40; i++) {
+        const h = document.createElement('div');
+        h.classList.add('blast-heart');
+        h.style.left = Math.random() * 100 + 'vw';
+        h.style.animationDuration = (1.6 + Math.random() * 0.8) + 's';
+        h.style.animationDelay = (Math.random() * 0.3) + 's';
+        blast.appendChild(h);
+      }
+
+      // fade in overlay then fade it out
+      blast.style.transition = 'opacity 0.6s ease';
+      requestAnimationFrame(() => {
+        blast.style.opacity = '1';
+      });
+
+      setTimeout(() => {
+        blast.style.opacity = '0';
+      }, 1600); // start fade-out before redirect
+
+      // after animation, go to game page
+      setTimeout(() => {
+        window.location.href = 'poison-game.html';  // make sure this matches your game file name
+      }, 2200);
+    }
+  </script>
+
+</body>
+</html>

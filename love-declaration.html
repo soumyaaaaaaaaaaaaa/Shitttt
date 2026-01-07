@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Much I Love You</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background: radial-gradient(circle at top, #ffe0f0 0%, #ffeff7 40%, #fbd3e9 100%);
+      padding: 16px;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 22px 18px 20px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+
+    .title {
+      font-size: 1.3rem;
+      margin-bottom: 14px;
+      color:#333;
+    }
+
+    .love-slides {
+      margin: 14px 0;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 10px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* LIGHT, SIMPLE SLIDES (no heavy animation) */
+    .love-slide {
+      background: #ffe6f1;
+      border-left: 3px solid #ff7aa2;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: #ff4f84;
+      font-weight: 700;
+      letter-spacing: 1px;
+
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    .summary {
+      font-size: 1rem;
+      color: #666;
+      margin-top: 14px;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .summary .highlight {
+      color: #ff7aa2;
+      font-weight: 700;
+    }
+
+    .continue-btn {
+      width: 100%;
+      padding: 11px 0;
+      border: none;
+      border-radius: 999px;
+      background: #ff7aa2;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(255, 122, 162, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 10px;
+    }
+    .continue-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(255, 122, 162, 0.5);
+    }
+    .continue-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(255, 122, 162, 0.3);
+    }
+
+    .love-slides::-webkit-scrollbar {
+      width: 6px;
+    }
+    .love-slides::-webkit-scrollbar-track {
+      background: rgba(255, 122, 162, 0.1);
+      border-radius: 10px;
+    }
+    .love-slides::-webkit-scrollbar-thumb {
+      background: #ff7aa2;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 20px 16px 18px; }
+      .title { font-size: 1.15rem; }
+      .love-slide { font-size: 0.95rem; padding: 9px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div class="card">
+      <div class="title">It's my turn to show how much I love u sooo scroll down 💗</div>
+
+      <div class="love-slides" id="loveSlidesBox">
+        <!-- slides created by JS -->
+      </div>
+
+      <div class="summary">
+        hahahhahah like this my Love will never come to end.
+        <span class="highlight">I loveeeeeee uuuuuu sooomuchhhh</span> 💕
+      </div>
+
+      <button class="continue-btn" onclick="continueNext()">
+        more for you ➜
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const loveSlidesBox = document.getElementById('loveSlidesBox');
+    const TEXT = "I LOVEEE UUUH ";
+    const VISIBLE_COUNT = 60; // fixed number of real nodes
+
+    // create fixed slides
+    for (let i = 0; i < VISIBLE_COUNT; i++) {
+      const slideItem = document.createElement('div');
+      slideItem.classList.add('love-slide');
+      slideItem.textContent = TEXT;
+      loveSlidesBox.appendChild(slideItem);
+    }
+
+    let isAdjusting = false;
+
+    loveSlidesBox.addEventListener('scroll', () => {
+      if (isAdjusting) return;
+
+      const scrollTop = loveSlidesBox.scrollTop;
+      const scrollHeight = loveSlidesBox.scrollHeight;
+      const clientHeight = loveSlidesBox.clientHeight;
+
+      const nearBottom = scrollHeight - scrollTop - clientHeight < 40;
+      const nearTop = scrollTop < 40;
+
+      // estimate one item height (safe if at least 1 child)
+      const item = loveSlidesBox.firstElementChild;
+      const itemHeight = item ? item.offsetHeight + 6 : 40;
+
+      if (nearBottom) {
+        isAdjusting = true;
+        for (let i = 0; i < 10; i++) {
+          const first = loveSlidesBox.firstElementChild;
+          loveSlidesBox.appendChild(first);
+        }
+        loveSlidesBox.scrollTop = scrollTop - itemHeight * 10;
+        isAdjusting = false;
+      }
+
+      if (nearTop) {
+        isAdjusting = true;
+        for (let i = 0; i < 10; i++) {
+          const last = loveSlidesBox.lastElementChild;
+          loveSlidesBox.insertBefore(last, loveSlidesBox.firstElementChild);
+        }
+        loveSlidesBox.scrollTop = scrollTop + itemHeight * 10;
+        isAdjusting = false;
+      }
+    });
+
+    function continueNext() {
+      window.location.href = 'gifts-page.html';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Do you love me?</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background: radial-gradient(circle at top, #ffe0f0 0%, #ffeff7 40%, #fbd3e9 100%);
+    }
+
+    .wrapper {
+      width: 90%;
+      max-width: 420px;
+      padding: 16px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 22px 18px 20px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.18);
+      text-align: center;
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+      transform: translateY(25px);
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(25px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .question {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color:#333;
+    }
+
+    .cat-box {
+      margin: 8px auto 16px;
+    }
+    .cat-box img {
+      width: 120px;
+      max-width: 60%;
+      border-radius: 16px;
+      object-fit: cover;
+    }
+
+    .btn-row {
+      display:flex;
+      justify-content:center;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .choice-btn {
+      flex:1;
+      min-width: 0;
+      padding: 10px 0;
+      border-radius: 999px;
+      border:none;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor:pointer;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s, color 0.15s;
+    }
+    .yes-btn {
+      background:#ff7aa2;
+      color:#fff;
+    }
+    .no-btn {
+      background:#ffffff;
+      color:#ff7aa2;
+      border:1px solid #ff7aa2;
+    }
+    .choice-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 9px 20px rgba(0,0,0,0.2);
+    }
+    .choice-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+    }
+
+    .tease-text {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color:#ff4f84;
+      min-height: 1.2em;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    /* popup */
+    .popup-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      justify-content:center;
+      align-items:center;
+      z-index: 20;
+    }
+    .popup {
+      background:white;
+      border-radius: 18px;
+      padding: 20px 18px;
+      text-align:center;
+      width: 80%;
+      max-width: 320px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      animation: popIn 0.3s ease-out forwards;
+      opacity:0;
+      transform: scale(0.9);
+    }
+    @keyframes popIn {
+      0% { opacity:0; transform: scale(0.9); }
+      100% { opacity:1; transform: scale(1); }
+    }
+    .popup h2 { margin-bottom: 8px; font-size: 1.2rem; }
+    .popup p { margin-bottom: 16px; font-size: 0.95rem; color:#555; }
+
+    .popup-btn {
+      border:none;
+      padding:10px 20px;
+      border-radius:999px;
+      background:#ff7aa2;
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      font-size:0.95rem;
+      box-shadow: 0 6px 16px rgba(255,122,162,0.5);
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 20px 16px 18px; }
+      .question { font-size: 1.15rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div class="card">
+      <div class="question">Do you loveee meee? 🥺</div>
+
+      <div class="cat-box">
+        <!-- same style as playlist cat gif area -->
+        <img src="can1.gif" alt="cat gif">
+      </div>
+
+      <div class="btn-row">
+        <button class="choice-btn yes-btn" id="yesBtn">Yes</button>
+        <button class="choice-btn no-btn" id="noBtn">No</button>
+      </div>
+
+      <div class="tease-text" id="teaseText"></div>
+    </div>
+  </div>
+
+  <!-- Yes popup -->
+  <div class="popup-backdrop" id="yesPopup">
+    <div class="popup">
+      <h2>Hahahahaha 💗</h2>
+      <p>Good Because you’re stuck with me anyway.</p>
+      <button class="popup-btn" onclick="continueNext()">Continue ➜</button>
+    </div>
+  </div>
+
+  <script>
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const teaseText = document.getElementById('teaseText');
+    const yesPopup = document.getElementById('yesPopup');
+
+    // When she clicks "No": shuffle buttons + show tease text for 2s
+    noBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      // swap positions using simple flex order
+      const yesOrder = yesBtn.style.order || '0';
+      const noOrder = noBtn.style.order || '1';
+      yesBtn.style.order = noOrder;
+      noBtn.style.order = yesOrder;
+
+      teaseText.textContent = 'Hahahahaha you can’t choose no 😜';
+      teaseText.style.opacity = '1';
+      setTimeout(() => {
+        teaseText.style.opacity = '0';
+      }, 2000);
+    });
+
+    // When she clicks "Yes": show popup
+    yesBtn.addEventListener('click', () => {
+      yesPopup.style.display = 'flex';
+    });
+
+    function continueNext() {
+      // go to next page after she says yes
+      window.location.href = 'love-meter.html';
+     
+    }
+  </script>
+
+</body>
+</html>
